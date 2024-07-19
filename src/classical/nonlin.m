@@ -2,16 +2,19 @@ function [X,Y] = generateData(numSamples)
 X = zeros(numSamples,2);
 labels = strings(numSamples,1);
 for i = 1:numSamples
-    x1 = 2*rand;
+    x1 = rand;
     x2 = rand;
     X(i,:) = [x1 x2];
-    if (x1 > 1 && x2 > 0.5) || (x1 < 1 && x2 < 0.5)
+    if (x1 > 0.5 && x2 > 0.5) || (x1 < 0.5 && x2 < 0.5)
         labels(i) = "Blue";
     else
         labels(i) = "Yellow";
     end
 end
 Y = categorical(labels);
+
+figure()
+gscatter(X(:,1), X(:,2), Y,"by")
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,12 +30,7 @@ numClasses = numel(classNames);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-addpath ../references
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 layers = [featureInputLayer(inputSize,Normalization="none")
-    PQCLayer
     fullyConnectedLayer(numClasses)
     softmaxLayer
     classificationLayer];
@@ -55,5 +53,7 @@ net = trainNetwork(X,Y,layers,options) %#ok<NOPTS>
 
 [XTest,trueLabels] = generateData(numSamples);
 predictedLabels = classify(net,XTest);
+
 gscatter(XTest(:,1),XTest(:,2),predictedLabels,"by")
+figure()
 confusionchart(trueLabels,predictedLabels)
