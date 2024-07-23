@@ -2,3 +2,6 @@
 
 # Matlab stuff
 *.mlx
+
+# Data stuff
+/test/rng.csv
