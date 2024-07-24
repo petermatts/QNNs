@@ -1,7 +1,13 @@
 # Latex stuff
 
+# Python stuff
+__pycache__
+
 # Matlab stuff
 *.mlx
 
 # Data stuff
-/test/rng.csv
+*.csv
+
+# VS Code stuff
+.vscode

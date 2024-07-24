@@ -1,6 +1,13 @@
 import torch
 from scipy.stats import chi2
 import subprocess
+from tqdm import tqdm
+from pandas import read_csv
+import sys
+from pathlib import Path
+
+sys.path.append(str((Path.cwd() / ".." / "references").resolve()))
+from Estimator import Estimator
 
 A = torch.tensor([
     [4529.4, 9044.9, 13568, 18091, 22615, 27892],
@@ -45,28 +52,54 @@ def R(runs: tuple[int,int,int,int,int,int], n)->float:
     return (1/n)*torch.sum(A * torch.outer(mult,mult))
 
 if __name__ == '__main__':
-    # matlab -batch "rng"
-    # subprocess.call(['matlab', '-batch', '"rng;exit;"'])
-    
-    print("Null Hypothesis: Number Generator is a valid uniform generator.\n")
+    runs = 5
     n = 5000 # number of samples
     conf = 0.95
-    samples = torch.rand(n)
-    rus = runs_up(samples)
-    print("Runs:", rus)
-    r_score = float(R(rus, n))
-    print("R =", r_score)
-    
+    epsilon = 0.01
+    relative = True
     score = float(chi2.isf(1-conf, 6))
-    print("X^2 score =", score, "for df=6 and", conf, "confidence.\n")
+    trial = True
 
-    if r_score <= score:
-        print("Accept Hypothesis: Number Generator is a valid uniform generator")
+    if runs == 1:
+        print("Null Hypothesis: Number Generator is a valid uniform generator.\n")
+        samples = torch.rand(n)
+        rus = runs_up(samples)
+        print("Runs:", rus)
+        r_score = float(R(rus, n))
+        print("R =", r_score)
+        
+        print("X^2 score =", score, "for df=6 and", conf, "confidence.\n")
+        if r_score <= score:
+            print("Accept Hypothesis: Number Generator is a valid uniform generator")
+        else:
+            print("Reject Hypothesis: Number Generator is not a valid uniform generator")
+
+        # test case in book
+        # n = 10
+        # samples = torch.tensor((0.86,0.11,0.23,0.03,0.13,0.06,0.55,0.64,0.87,0.10))
+        # print(runs_up(samples)) # (2,2,0,1,0,0)
+        # print(R(runs_up(samples), n))
     else:
-        print("Reject Hypothesis: Number Generator is not a valid uniform generator")
+        est = Estimator(100*conf, epsilon=epsilon, relative=relative)
+        est.reset()
 
-    # test case in book
-    # n = 10
-    # samples = torch.tensor((0.86,0.11,0.23,0.03,0.13,0.06,0.55,0.64,0.87,0.10))
-    # print(runs_up(samples)) # (2,2,0,1,0,0)
-    # print(R(runs_up(samples), n))
+        for run in tqdm(range(runs)):
+            subprocess.call(['matlab', '-batch', '"reset(RandStream.getGlobalStream,sum(100*clock));rng"'])
+            data = torch.tensor(read_csv("rng.csv").to_numpy())
+            assert n == data.shape[0]
+            rus = runs_up(data)
+            r_score = float(R(rus, n))
+            est.add_val(r_score)
+
+        r_score = est.get_mean()
+        print("Average Runs-Up score is %f"%r_score)
+        print(est.get_ci(), end='\n\n')
+        print("Null Hypothesis: Number Generator is a valid uniform generator.")
+        print("X^2 score =", score, "for df=6 and", conf, "confidence.\n")
+        if r_score <= score:
+            print("Accept Hypothesis: Number Generator is a valid uniform generator!\n")
+        else:
+            print("Reject Hypothesis: Number Generator is not a valid uniform generator!\n")
+
+        if trial:
+            print(est.get_num_trials())

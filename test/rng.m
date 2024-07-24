@@ -1,3 +1,3 @@
 samples = 5000; % number of samples to generate, must match value in rng_gof.py
-nums = rand(samples,1);
+nums = rand(samples+1,1);
 writematrix(nums, "rng.csv");
