@@ -7,7 +7,9 @@ __pycache__
 *.mlx
 
 # Data stuff
+images
 *.csv
+*.zip
 
 # VS Code stuff
 .vscode
