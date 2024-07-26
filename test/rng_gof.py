@@ -52,13 +52,13 @@ def R(runs: tuple[int,int,int,int,int,int], n)->float:
     return (1/n)*torch.sum(A * torch.outer(mult,mult))
 
 if __name__ == '__main__':
-    runs = 5
+    runs = 7730
     n = 5000 # number of samples
     conf = 0.95
     epsilon = 0.01
     relative = True
     score = float(chi2.isf(1-conf, 6))
-    trial = True
+    trial = False
 
     if runs == 1:
         print("Null Hypothesis: Number Generator is a valid uniform generator.\n")
@@ -81,13 +81,14 @@ if __name__ == '__main__':
         # print(R(runs_up(samples), n))
     else:
         est = Estimator(100*conf, epsilon=epsilon, relative=relative)
-        est.reset()
 
-        for run in tqdm(range(runs)):
-            subprocess.call(['matlab', '-batch', '"reset(RandStream.getGlobalStream,sum(100*clock));rng"'])
-            data = torch.tensor(read_csv("rng.csv").to_numpy())
-            assert n == data.shape[0]
-            rus = runs_up(data)
+        subprocess.call(['matlab', '-batch', f'samples={n};runs={runs};rng;'])
+
+        data = torch.tensor(read_csv("rng.csv").to_numpy())
+
+        #todo vectorize this?
+        for r in range(runs):
+            rus = runs_up(data[r,:])
             r_score = float(R(rus, n))
             est.add_val(r_score)
 
