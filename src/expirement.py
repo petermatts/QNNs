@@ -13,20 +13,21 @@ def make_parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     model_type_group = parser.add_mutually_exclusive_group()
-    model_type_group.add_argument("--classical", type=bool, nargs='?', const=True, default=False, help="")
-    model_type_group.add_argument("--quantum", type=bool, nargs='?', const=True, default=False, help="")
+    model_type_group.add_argument("--classical", type=bool, nargs='?', const=True, default=False, help="Specify a classical model")
+    model_type_group.add_argument("--quantum", type=bool, nargs='?', const=True, default=False, help="Specify a quantum model")
 
     main = parser.add_mutually_exclusive_group(required=True)
-    main.add_argument("--name", type=str, help="")
-    main.add_argument("--clean-all", type=bool, nargs='?', const=True, default=False, help="")
+    main.add_argument("--name", type=str, help="Specify the model type to be trained or cleaned")
+    main.add_argument("--clean-all", type=bool, nargs='?', const=True, default=False, help="Cleans all model result spreadsheets")
     
-    parser.add_argument("--runs", type=int, default=100, help="")
-    parser.add_argument("--clean", type=bool, nargs='?', const=True, default=False, help="")
+    parser.add_argument("--runs", type=int, default=100, help="Sets the number of models to run and append to results spreadsheet")
+    parser.add_argument("--clean", type=bool, nargs='?', const=True, default=False, help="Cleans result spreadsheet for model type, requires model name")
 
     # estimator args
-    parser.add_argument("--conf-pct", type=float, default=95, help="")
-    parser.add_argument("--epsilon", type=float, default=0.01, help="")
-    parser.add_argument("--relative", type=bool, default=True, help="")
+    parser.add_argument("--analyze", type=bool, nargs='?', const=True, default=False, help="Analyzes results already produced (does not run models)")
+    parser.add_argument("--conf-pct", type=float, default=95, help="Sets the confidence interval percentage")
+    parser.add_argument("--epsilon", type=float, default=0.01, help="Sets the epsilon/difference value for CIs")
+    parser.add_argument("--relative", type=bool, default=True, help="Determines if epsilon is used in a relative or absolute context")
 
     return parser.parse_args()
 
@@ -103,11 +104,11 @@ def analyze(args):
     
     assert data is not None
 
-    for i in range(args.runs):
+    for i in range(data.shape[0]):
         est.add_val(data[i,0])
 
-    print("Average accuracy is %f"%est.get_mean())
-    print(est.get_ci(), end='\n\n')
+    print("\nAverage accuracy is %f over %d models"%(est.get_mean(), data.shape[0]))
+    print(est.get_ci())
 
 
 if __name__ == "__main__":
@@ -117,5 +118,6 @@ if __name__ == "__main__":
         check_clean(args)
     else:
         cmd_str = build_matlab_str(args)
-        subprocess.call(['matlab', '-batch', cmd_str])
+        if not args.analyze:
+            subprocess.call(['matlab', '-batch', cmd_str])
         analyze(args)
