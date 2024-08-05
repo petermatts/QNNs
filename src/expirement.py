@@ -58,20 +58,16 @@ def build_matlab_str(args: argparse.Namespace) -> str:
 
 def check_clean(args) -> None:
     if args.clean:
+        if args.name == None:
+            raise ValueError("Missing name parameter")
+        
+        rm_path = Path.cwd()
         if args.classical:
-            if args.name == "linear":
-                if os.path.exists('classical/linear.csv'): os.remove('classical/linear.csv')
-            elif args.name == "nonlin":
-                if os.path.exists('classical/nonlin.csv'): os.remove('classical/nonlin.csv')
-            else:
-                raise ValueError("Invalid model name or type")
+            rm_path = rm_path / "classical" / (args.name + ".csv")
+            os.remove(str(rm_path.resolve()))
         elif args.quantum:
-            if args.name == "linear":
-                if os.path.exists('quantum/linear.csv'): os.remove('quantum/linear.csv')
-            elif args.name == "nonlin":
-                if os.path.exists('quantum/nonlin.csv'): os.remove('quantum/nonlin.csv')
-            else:
-                raise ValueError("Invalid model name or type")
+            rm_path = rm_path / "classical" / (args.name + ".csv")
+            os.remove(str(rm_path.resolve()))
         else:
             raise ValueError("Unspecified model type")
     elif args.clean_all:
