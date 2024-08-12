@@ -5,7 +5,7 @@ for i = 1:numSamples
     x1 = rand;
     x2 = rand;
     X(i,:) = [x1 x2];
-    if (x1 > 0.5 && x2 > 0.5) || (x1 < 0.5 && x2 < 0.5)
+    if (x1 > x2)
         labels(i) = "Blue";
     else
         labels(i) = "Yellow";
@@ -22,9 +22,9 @@ classNames = ["Blue", "Yellow"];
 
 figure()
 gscatter(X(:,1), X(:,2), Y,"by")
-title("Train (Sigmoid Nonlinear Classical)")
+title("Train (ReLU Linear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_sigmoid_nonlin_data.png");
+    saveas(gcf, "../../../images/classical_relu_linear_data.png");
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,8 +35,8 @@ numClasses = numel(classNames);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 layers = [featureInputLayer(inputSize,Normalization="none")
-    % fullyConnectedLayer(5) % performance is best with another layer here
-    sigmoidLayer()
+    fullyConnectedLayer(5) % performance is best with another layer here
+    reluLayer()
     fullyConnectedLayer(numClasses)
     softmaxLayer
     classificationLayer];
@@ -67,7 +67,7 @@ net = trainNetwork(X,Y,layers,options);
 if not(exist('hide','var'))
     currentfig = findall(groot, 'Tag', 'NNET_CNN_TRAININGPLOT_UIFIGURE');
     F = getframe(currentfig(1,1));
-    imwrite(F.cdata, '../../images/classical_sigmoid_nonlin_prog.png');
+    imwrite(F.cdata, '../../../images/classical_relu_linear_prog.png');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,18 +77,18 @@ predictedLabels = classify(net,XTest);
 
 figure()
 gscatter(XTest(:,1),XTest(:,2),predictedLabels,"by")
-title("Test (Sigmoid Nonlinear Classical)")
+title("Test (ReLU Linear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_sigmoid_nonlin_test.png")
+    saveas(gcf, "../../../images/classical_relu_linear_test.png")
 end
 
 figure()
 confusionchart(trueLabels,predictedLabels)
-title("Confusion Matrix (Sigmoid Nonlinear Classical)")
+title("Confusion Matrix (ReLU Linear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_sigmoid_nonlin_conf.png")
+    saveas(gcf, "../../../images/classical_relu_linear_conf.png")
 end
 
 format long
 accuracy = sum(predictedLabels==trueLabels,'all')/numel(predictedLabels);
-writematrix(accuracy, "sigmoid_nonlin.csv", "WriteMode", "append")
+writematrix(accuracy, "relu_linear.csv", "WriteMode", "append")

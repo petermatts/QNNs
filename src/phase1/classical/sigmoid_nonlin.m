@@ -22,9 +22,9 @@ classNames = ["Blue", "Yellow"];
 
 figure()
 gscatter(X(:,1), X(:,2), Y,"by")
-title("Train (ReLU Nonlinear Classical)")
+title("Train (Sigmoid Nonlinear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_relu_nonlin_data.png");
+    saveas(gcf, "../../../images/classical_sigmoid_nonlin_data.png");
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,7 +36,7 @@ numClasses = numel(classNames);
 
 layers = [featureInputLayer(inputSize,Normalization="none")
     % fullyConnectedLayer(5) % performance is best with another layer here
-    reluLayer()
+    sigmoidLayer()
     fullyConnectedLayer(numClasses)
     softmaxLayer
     classificationLayer];
@@ -67,7 +67,7 @@ net = trainNetwork(X,Y,layers,options);
 if not(exist('hide','var'))
     currentfig = findall(groot, 'Tag', 'NNET_CNN_TRAININGPLOT_UIFIGURE');
     F = getframe(currentfig(1,1));
-    imwrite(F.cdata, '../../images/classical_relu_nonlin_prog.png');
+    imwrite(F.cdata, '../../../images/classical_sigmoid_nonlin_prog.png');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,18 +77,18 @@ predictedLabels = classify(net,XTest);
 
 figure()
 gscatter(XTest(:,1),XTest(:,2),predictedLabels,"by")
-title("Test (ReLU Nonlinear Classical)")
+title("Test (Sigmoid Nonlinear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_relu_nonlin_test.png")
+    saveas(gcf, "../../../images/classical_sigmoid_nonlin_test.png")
 end
 
 figure()
 confusionchart(trueLabels,predictedLabels)
-title("Confusion Matrix (ReLU Nonlinear Classical)")
+title("Confusion Matrix (Sigmoid Nonlinear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_relu_nonlin_conf.png")
+    saveas(gcf, "../../../images/classical_sigmoid_nonlin_conf.png")
 end
 
 format long
 accuracy = sum(predictedLabels==trueLabels,'all')/numel(predictedLabels);
-writematrix(accuracy, "relu_nonlin.csv", "WriteMode", "append")
+writematrix(accuracy, "sigmoid_nonlin.csv", "WriteMode", "append")

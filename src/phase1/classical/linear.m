@@ -22,9 +22,9 @@ classNames = ["Blue", "Yellow"];
 
 figure()
 gscatter(X(:,1), X(:,2), Y,"by")
-title("Train (Sigmoid Linear Classical)")
+title("Train (Linear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_sigmoid_linear_data.png");
+    saveas(gcf, "../../../images/classical_linear_data.png");
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,8 +35,6 @@ numClasses = numel(classNames);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 layers = [featureInputLayer(inputSize,Normalization="none")
-    % fullyConnectedLayer(5) % performance is best with another layer here
-    sigmoidLayer()
     fullyConnectedLayer(numClasses)
     softmaxLayer
     classificationLayer];
@@ -67,7 +65,7 @@ net = trainNetwork(X,Y,layers,options);
 if not(exist('hide','var'))
     currentfig = findall(groot, 'Tag', 'NNET_CNN_TRAININGPLOT_UIFIGURE');
     F = getframe(currentfig(1,1));
-    imwrite(F.cdata, '../../images/classical_sigmoid_linear_prog.png');
+    imwrite(F.cdata, '../../../images/classical_linear_prog.png');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,18 +75,18 @@ predictedLabels = classify(net,XTest);
 
 figure()
 gscatter(XTest(:,1),XTest(:,2),predictedLabels,"by")
-title("Test (Sigmoid Linear Classical)")
+title("Test (Linear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_sigmoid_linear_test.png")
+    saveas(gcf, "../../../images/classical_linear_test.png")
 end
 
 figure()
 confusionchart(trueLabels,predictedLabels)
-title("Confusion Matrix (Sigmoid Linear Classical)")
+title("Confusion Matrix (Linear Classical)")
 if not(exist('hide', 'var'))
-    saveas(gcf, "../../images/classical_sigmoid_linear_conf.png")
+    saveas(gcf, "../../../images/classical_linear_conf.png")
 end
 
 format long
 accuracy = sum(predictedLabels==trueLabels,'all')/numel(predictedLabels);
-writematrix(accuracy, "sigmoid_linear.csv", "WriteMode", "append")
+writematrix(accuracy, "linear.csv", "WriteMode", "append")
